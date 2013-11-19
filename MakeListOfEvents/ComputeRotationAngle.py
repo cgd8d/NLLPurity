@@ -226,7 +226,7 @@ def Run(prefix, **kwargs):
         return
     if len(EnergyList2D_ss) < 1000: print "ALERT: low-statistics run." # For future review.
 
-    ThetaToTry = [0.1 + 0.01*i for i in range(40)]
+    ThetaToTry = [0.1 + 0.01*i for i in range(60)]
     graph_ss = ROOT.TGraphErrors()
     graph_ms = ROOT.TGraphErrors()
 
