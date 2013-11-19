@@ -299,10 +299,9 @@ def Run(prefix, **kwargs):
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print 'We need the run number to be passed in as an argument:'
-        print 'python ComputeRotationAngle.py <run_number>'
+        print 'We need the denoised file glob to be passed in as an argument:'
+        print 'python ComputeRotationAngle.py <file path> <tag>_opt'
         sys.exit()
-    RunNumber = int(sys.argv[1])
     import ROOT
     ROOT.TH1.AddDirectory(False)
     ROOT.gROOT.SetBatch()
@@ -310,22 +309,22 @@ if __name__ == '__main__':
     import glob
     import time
     import random
-    globname = '/nfs/slac/g/exo_data3/exo_data/data/WIPP/masked/' + str(int(sys.argv[1])) + '/masked*.root'
     EventTree = ROOT.TChain('tree')
-    numFilesAddedToTree = EventTree.Add(globname)
-    AllMaskedFiles = glob.glob(globname)
+    numFilesAddedToTree = EventTree.Add(sys.argv[1])
+    AllMaskedFiles = glob.glob(sys.argv[1])
     while len(AllMaskedFiles) == 0 or len(AllMaskedFiles) != numFilesAddedToTree:
         print "Failed to get the number of masked files expected; try again."
         time.sleep(120*random.random())
         EventTree.Reset()
-        numFilesAddedToTree = EventTree.Add(globname)
-        AllMaskedFiles = glob.glob(globname)
+        numFilesAddedToTree = EventTree.Add(sys.argv[1])
+        AllMaskedFiles = glob.glob(sys.argv[1])
 
     AllMaskedFiles.sort(reverse = True)
     LastFile = ROOT.TFile(AllMaskedFiles[0])
     LastTree = LastFile.Get('tree')
     ControlRecordList = LastTree.GetUserInfo().At(1)
-    result = Run('ComputeRotationAngle_oldversion/RotationAngle_%04i' % int(sys.argv[1]),
-                 EventTree=EventTree, ControlRecordList=ControlRecordList)
+    OutStem = 'RotationAngle'
+    if len(sys.argv) > 2: OutStem += '_' + sys.argv[2]
+    result = Run(OutStem, EventTree=EventTree, ControlRecordList=ControlRecordList)
     print result
 
